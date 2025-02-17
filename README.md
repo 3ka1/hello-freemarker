@@ -1,4 +1,4 @@
-# Ktor Freemarker Template Project
+# Freemarker Editor
 
 ## Prerequisites
 
