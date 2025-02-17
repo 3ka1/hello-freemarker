@@ -29,21 +29,4 @@ class TemplateTest {
         assertTrue(result.contains("<h1>"))
         assertTrue(result.contains("</h1>"))
     }
-
-    @Test
-    fun `test welcome template rendering`() {
-        val template = configuration.getTemplate("welcome.ftl")
-        val writer = StringWriter()
-        val pageData = PageData(
-            message = "Test Welcome",
-            timestamp = "2024-02-16 12:00:00"
-        )
-        val model = mapOf("data" to pageData)
-
-        template.process(model, writer)
-        val result = writer.toString()
-
-        assertTrue(result.contains("Test Welcome"))
-        assertTrue(result.contains("2024-02-16 12:00:00"))
-    }
 }

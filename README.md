@@ -1,4 +1,4 @@
-# Freemarker Template Starter with Ktor
+# Ktor Freemarker Template Project
 
 ## Prerequisites
 
@@ -51,9 +51,23 @@ src/
 ## Available Routes
 
 - `GET /` - Home page
-- `GET /greet?message=Hello` - Displays a greeting with a custom message
-- `GET /greet/{message}` - Displays a greeting using path parameter
-- `GET /welcome` - Welcome page with timestamp
+- `POST /greet` - Displays a greeting using JSON data
+- `POST /welcome` - Welcome page with JSON data
+
+### JSON Request Format
+```json
+{
+    "message": "Your message here",
+    "sender": "Your name"  // Optional, defaults to "Anonymous"
+}
+```
+
+Example using curl:
+```bash
+curl -X POST http://localhost:8080/greet \
+     -H "Content-Type: application/json" \
+     -d '{"message": "Hello, World!", "sender": "John"}'
+```
 
 ## Running Tests
 

@@ -5,10 +5,13 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlin.test.*
+import com.example.models.GreetingData
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 
 class ApplicationTest {
     @Test
-    fun `test root endpoint returns correct message`() = testApplication {
+    fun testRoot() = testApplication {
         application {
             module()
         }
@@ -20,64 +23,60 @@ class ApplicationTest {
     }
 
     @Test
-    fun `test greet endpoint with query parameter`() = testApplication {
+    fun `test greet endpoint with JSON data`() = testApplication {
         application {
             module()
         }
 
-        client.get("/greet?message=Hello+Test").apply {
+        val greetingData = GreetingData(
+            message = "Hello from Test",
+            sender = "Test Suite"
+        )
+
+        client.post("/greet") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(greetingData))
+        }.apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertTrue(bodyAsText().contains("Hello Test"))
+            val responseText = bodyAsText()
+            assertTrue(responseText.contains("Hello from Test"))
+            assertTrue(responseText.contains("Test Suite"))
         }
     }
 
     @Test
-    fun `test greet endpoint with path parameter`() = testApplication {
+    fun `test welcome endpoint with JSON data`() = testApplication {
         application {
             module()
         }
 
-        client.get("/greet?message=Hello+Path+Test").apply {
+        val greetingData = GreetingData(
+            message = "Welcome Test",
+            sender = "Test Suite"
+        )
+
+        client.post("/welcome") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(greetingData))
+        }.apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertTrue(bodyAsText().contains("Hello Path Test"))
+            val responseText = bodyAsText()
+            assertTrue(responseText.contains("Welcome Test"))
+            assertTrue(responseText.contains("Test Suite"))
         }
     }
 
     @Test
-    fun `test greet endpoint without message parameter but it contains path`() = testApplication {
+    fun `test greet endpoint with invalid JSON`() = testApplication {
         application {
             module()
         }
 
-        client.get("/greet/Hello+World").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertTrue(bodyAsText().contains("Hello+World"))
-        }
-    }
-
-    @Test
-    fun `test greet endpoint without message parameter`() = testApplication {
-        application {
-            module()
-        }
-
-        client.get("/greet").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertTrue(bodyAsText().contains("Default Message"))
-        }
-    }
-
-    @Test
-    fun `test welcome endpoint contains message and timestamp`() = testApplication {
-        application {
-            module()
-        }
-
-        client.get("/welcome").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val response = bodyAsText()
-            assertTrue(response.contains("Welcome to our site!"))
-            assertTrue(response.contains("Time:"))
+        client.post("/greet") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"invalid": "json"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
         }
     }
 }
