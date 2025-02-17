@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Dashboard</title>
     <style>
@@ -8,25 +8,30 @@
             background-color: #f8f9fa;
             border-radius: 5px;
         }
+
         .user-info {
             margin-bottom: 20px;
         }
+
         .stats {
             display: flex;
             gap: 20px;
         }
+
         .stat-card {
             background: white;
             padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex: 1;
         }
+
         .stat-value {
             font-size: 24px;
             font-weight: bold;
             color: #3498db;
         }
+
         .stat-label {
             color: #7f8c8d;
             font-size: 14px;

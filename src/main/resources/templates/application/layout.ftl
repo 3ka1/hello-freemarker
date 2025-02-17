@@ -133,7 +133,8 @@
 <@layout.mainLayout>
     <div class="template-info">
         <h2 id="currentTemplate">Greeting Template</h2>
-        <p id="templateDescription">A simple template for displaying greetings with sender information and timestamp.</p>
+        <p id="templateDescription">A simple template for displaying greetings with sender information and
+            timestamp.</p>
     </div>
 
     <div class="form-group">
