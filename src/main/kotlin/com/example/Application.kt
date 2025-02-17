@@ -1,12 +1,18 @@
 package com.example
 
+import com.example.models.DashboardData
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.freemarker.*
-import freemarker.cache.ClassTemplateLoader
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.request.*
+import io.ktor.http.*
+import freemarker.cache.ClassTemplateLoader
+import com.example.models.GreetingData
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.plugins.contentnegotiation.*
 import java.time.LocalDateTime
 
 fun main() {
@@ -15,48 +21,67 @@ fun main() {
 }
 
 fun Application.module() {
+    // Install content negotiation with JSON support
+    install(ContentNegotiation) {
+        json()
+    }
+
     install(FreeMarker) {
         templateLoader = ClassTemplateLoader(this::class.java.classLoader, "templates")
     }
 
     routing {
-        // root
         get("/") {
-            call.respond(FreeMarkerContent("index.ftl", mapOf(
-                "message" to "Welcome to Ktor!"
-            )))
+            call.respond(FreeMarkerContent("application/index.ftl", mapOf<String, Any>(), ""))
         }
 
-        // Using query parameters: /greet?message=Hello+World
-        get("/greet") {
-            val message = call.parameters["message"] ?: "Default Message"
-            call.respond(FreeMarkerContent("index.ftl", mapOf(
-                "message" to message
-            )))
+        post("/greet") {
+            try {
+                val greetingData = call.receive<GreetingData>()
+                call.respond(FreeMarkerContent(
+                    "greets/greeting.ftl",
+                    mapOf(
+                        "message" to greetingData.message,
+                        "sender" to greetingData.sender,
+                        "timestamp" to LocalDateTime.now().toString()
+                    )
+                ))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid JSON format")
+            }
         }
 
-        // Using path parameters: /greet/Hello+World
-        get("/greet/{message}") {
-            val message = call.parameters["message"] ?: "Default Message"
-            call.respond(FreeMarkerContent("index.ftl", mapOf(
-                "message" to message
-            )))
+        post("/welcome") {
+            try {
+                val greetingData = call.receive<GreetingData>()
+                call.respond(FreeMarkerContent(
+                    "greets/welcome.ftl",
+                    mapOf(
+                        "message" to greetingData.message,
+                        "sender" to greetingData.sender,
+                    )
+                ))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid JSON format")
+            }
         }
 
-        // Using a data class
-        get("/welcome") {
-            val pageData = PageData(
-                message = "Welcome to our site!",
-                timestamp = LocalDateTime.now().toString()
-            )
-            call.respond(FreeMarkerContent("welcome.ftl", mapOf(
-                "data" to pageData
-            )))
+        post("/dashboard") {
+            try {
+                val dashboardData = call.receive<DashboardData>()
+                call.respond(FreeMarkerContent(
+                    "application/dashboard.ftl",
+                    mapOf(
+                        "username" to dashboardData.username,
+                        "stats" to mapOf(
+                            "visits" to dashboardData.stats.visits,
+                            "actions" to dashboardData.stats.actions
+                        )
+                    )
+                ))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid JSON format")
+            }
         }
     }
 }
-
-data class PageData(
-    val message: String,
-    val timestamp: String
-)
